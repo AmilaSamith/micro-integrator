@@ -31,7 +31,6 @@ hs_err_pid*
 .project
 
 # Temporary directories
-target/
 /cmd/build
 
 ### Node ###
