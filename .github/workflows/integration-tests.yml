@@ -25,7 +25,7 @@ jobs:
           cache: maven
 
       - name: Build MI pack
-        run: mvn clean install -DskipTests=true -fae
+        run: mvn clean install -DskipTests=true
 
       - name: Run Integration Tests
         run: |
