@@ -17,6 +17,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '11'
+          distribution: 'temurin'
 
       - name: Set JAVA_TOOL_OPTIONS
         run: |
@@ -36,6 +37,7 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '21'
+          distribution: 'temurin'
 
       - name: Run Integration Tests
         run: |
