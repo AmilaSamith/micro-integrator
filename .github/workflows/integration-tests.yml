@@ -1,5 +1,4 @@
-name: MI Integration Tests - Parallel Execution
-
+name: MI Integration Tests - JDK 21
 on:
   push:
     branches: [ "integration-self-build" ]
@@ -10,22 +9,29 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    strategy:
-      matrix:
-        java-version: ['11']  # Java versions to test
-
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK ${{ matrix.java-version }}
-        uses: actions/setup-java@v4
+        # Set up Java 11 for build
+      - name: Set up JDK 11 for Build
+        uses: actions/setup-java@v2
         with:
-          java-version: ${{ matrix.java-version }}
-          distribution: 'temurin'
-          cache: maven
+          java-version: '11'
 
-      - name: Build MI pack
-        run: mvn clean install -DskipTests=true
+      - name: Set JAVA_TOOL_OPTIONS
+        run: |
+          NEW_JAVA_TOOL_OPTIONS="${{ env.JAVA_TOOL_OPTIONS }} -Djdk.util.zip.disableZip64ExtraFieldValidation=true -Djdk.nio.zipfs.allowDotZipEntry=true --add-opens=java.base/java.net=ALL-UNNAMED"
+          echo "JAVA_TOOL_OPTIONS=$NEW_JAVA_TOOL_OPTIONS" >> $GITHUB_ENV      
+
+      # Build the project using Java 11
+      - name: Build with Maven
+        run: mvn -B install --file pom.xml -DskipTests=true
+
+      # Set up Java 8 for Integration Tests
+      - name: Set up JDK 21 for Integration Tests
+        uses: actions/setup-java@v2
+        with:
+          java-version: '21'
 
       - name: Run Integration Tests
         run: |
