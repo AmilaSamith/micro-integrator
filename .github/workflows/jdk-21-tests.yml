@@ -34,6 +34,10 @@ jobs:
         run: echo "MAVEN_VERSION=$(mvn -v)"
       - name: check java version
         run: echo "JAVA_VERSION=$(java -version)"
+      - name: Set JAVA_TOOL_OPTIONS
+        run: |
+          NEW_JAVA_TOOL_OPTIONS="${{ env.JAVA_TOOL_OPTIONS }} -Djdk.util.zip.disableZip64ExtraFieldValidation=true -Djdk.nio.zipfs.allowDotZipEntry=true --add-opens=java.base/java.net=ALL-UNNAMED"
+          echo "JAVA_TOOL_OPTIONS=$NEW_JAVA_TOOL_OPTIONS" >> $GITHUB_ENV  
       - name: Build in jdk11
         run: mvn -B clean install -DskipTests --file pom.xml
       - name: Set up JDK 21
