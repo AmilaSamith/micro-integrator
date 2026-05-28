@@ -45,6 +45,8 @@ import org.apache.synapse.util.MessageHelper;
 import org.w3c.dom.Document;
 import org.wso2.micro.integrator.dataservices.core.DataServiceFault;
 import org.wso2.micro.integrator.dataservices.core.DataServiceProcessor;
+import org.wso2.micro.integrator.dataservices.core.analytics.DataServicesAnalyticsCollector;
+import org.wso2.micro.integrator.dataservices.core.analytics.DataServicesAnalyticsConstants;
 import org.wso2.micro.integrator.dataservices.core.opentelemetry.DataServicesTracingCollector;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -209,8 +211,12 @@ public class DataServiceCallMediator extends AbstractMediator {
 
         try {
             DataServicesTracingCollector.reportEntryEvent(axis2MessageContext);
+            DataServicesAnalyticsCollector.reportEntryEvent(axis2MessageContext);
             OMElement omElement = DataServiceProcessor.dispatch(axis2MessageContext);
             DataServicesTracingCollector.closeEntryEvent(axis2MessageContext, omElement);
+            DataServicesAnalyticsCollector.closeEntryEventWithSubType(
+                    axis2MessageContext, omElement,
+                    DataServicesAnalyticsConstants.SUB_TYPE_DSS_CALL_MEDIATOR);
             if (synLog.isTraceOrDebugEnabled()) {
                 synLog.traceOrDebug("The result OMElement from the dataservice : " + omElement);
             }
@@ -245,6 +251,9 @@ public class DataServiceCallMediator extends AbstractMediator {
             }
         } catch (DataServiceFault dataServiceFault) {
             DataServicesTracingCollector.closeFlowForcefully(axis2MessageContext, DATA_SERVICE_INDEX, dataServiceFault);
+            DataServicesAnalyticsCollector.closeFlowForcefullyWithSubType(
+                    axis2MessageContext, dataServiceFault,
+                    DataServicesAnalyticsConstants.SUB_TYPE_DSS_CALL_MEDIATOR);
             if (synLog.isTraceOrDebugEnabled()) {
                 synLog.traceOrDebug(dataServiceFault.getMessage());
             }

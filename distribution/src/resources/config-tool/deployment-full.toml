@@ -1139,6 +1139,7 @@ proxy_service_analytics.enabled = true
 sequence_analytics.enabled = true
 endpoint_analytics.enabled = true
 inbound_endpoint_analytics.enabled = true
+data_service_analytics.enabled = true
 
 
 #################### Axis2 Phases ##########################################

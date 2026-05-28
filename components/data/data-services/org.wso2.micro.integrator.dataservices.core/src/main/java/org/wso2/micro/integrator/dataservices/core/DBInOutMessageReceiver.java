@@ -29,6 +29,7 @@ import org.apache.axis2.transport.http.HTTPConstants;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.micro.integrator.dataservices.common.DBConstants;
+import org.wso2.micro.integrator.dataservices.core.analytics.DataServicesAnalyticsCollector;
 import org.wso2.micro.integrator.dataservices.core.opentelemetry.DataServicesTracingCollector;
 
 import java.util.Map;
@@ -63,6 +64,7 @@ public class DBInOutMessageReceiver extends RawXMLINOutMessageReceiver {
 				          msgContext.getEnvelope().getText() + ", ThreadID - " + Thread.currentThread().getId());
 			}
             DataServicesTracingCollector.reportEntryEvent(msgContext);
+            DataServicesAnalyticsCollector.reportEntryEvent(msgContext);
 			boolean isAcceptJson = false;
 			Map transportHeaders = (Map) msgContext.getProperty(MessageContext.TRANSPORT_HEADERS);
 			if (transportHeaders != null) {
@@ -96,10 +98,12 @@ public class DBInOutMessageReceiver extends RawXMLINOutMessageReceiver {
 						HTTPConstants.MEDIA_TYPE_APPLICATION_JSON);
 			}
             DataServicesTracingCollector.closeEntryEvent(msgContext, result);
+            DataServicesAnalyticsCollector.closeEntryEvent(msgContext, result);
 		} catch (Exception e) {
 			log.error("Error in in-out message receiver", e);
 			msgContext.setProperty(Constants.FAULT_NAME, DBConstants.DS_FAULT_NAME);
             DataServicesTracingCollector.closeFlowForcefully(msgContext, DATA_SERVICE_INDEX, e);
+            DataServicesAnalyticsCollector.closeFlowForcefully(msgContext, e);
 			throw DBUtils.createAxisFault(e);
 		} finally {
 			if (msgContext.getProperty(DATA_SERVICE_LATENCY_TIMER) != null) {

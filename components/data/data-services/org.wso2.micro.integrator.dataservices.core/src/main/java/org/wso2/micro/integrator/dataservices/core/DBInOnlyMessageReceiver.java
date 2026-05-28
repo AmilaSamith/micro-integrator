@@ -24,6 +24,7 @@ import org.apache.axis2.receivers.RawXMLINOnlyMessageReceiver;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.wso2.micro.integrator.dataservices.common.DBConstants;
+import org.wso2.micro.integrator.dataservices.core.analytics.DataServicesAnalyticsCollector;
 import org.wso2.micro.integrator.dataservices.core.opentelemetry.DataServicesTracingCollector;
 
 import static org.wso2.micro.integrator.dataservices.core.opentelemetry.DataServicesTracingConstants.DATA_SERVICE_INDEX;
@@ -53,13 +54,16 @@ public class DBInOnlyMessageReceiver extends RawXMLINOnlyMessageReceiver {
                         msgContext.getEnvelope().getText() + ", ThreadID - " + Thread.currentThread().getId());
             }
             DataServicesTracingCollector.reportEntryEvent(msgContext);
+            DataServicesAnalyticsCollector.reportEntryEvent(msgContext);
             DataServiceProcessor.dispatch(msgContext);
             msgContext.setProperty(DBConstants.TENANT_IN_ONLY_MESSAGE, Boolean.TRUE);
             DataServicesTracingCollector.closeEntryEvent(msgContext, null);
+            DataServicesAnalyticsCollector.closeEntryEvent(msgContext, null);
         } catch (Exception e) {
             log.error("Error in in-only message receiver", e);
             msgContext.setProperty(Constants.FAULT_NAME, DBConstants.DS_FAULT_NAME);
             DataServicesTracingCollector.closeFlowForcefully(msgContext, DATA_SERVICE_INDEX, e);
+            DataServicesAnalyticsCollector.closeFlowForcefully(msgContext, e);
             throw DBUtils.createAxisFault(e);
         } finally {
             if (log.isDebugEnabled()) {
